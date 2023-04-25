@@ -10,10 +10,14 @@ import Heading from '../Heading';
 import Input from '../inputs/Input';
 import toast from 'react-hot-toast';
 import Button from '../Button';
+import useLoginModal from '@/app/hooks/useLoginModal';
 import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
-const RegisterModal = () => {
+const LoginModal = () => {
+	const router = useRouter();
 	const registermodal = useRegisterModal();
+	const loginmodal = useLoginModal();
 	const [isLoading, setIsLoading] = useState(false);
 
 	const {
@@ -22,7 +26,6 @@ const RegisterModal = () => {
 		formState: { errors },
 	} = useForm<FieldValues>({
 		defaultValues: {
-			name: '',
 			email: '',
 			password: '',
 		},
@@ -31,8 +34,17 @@ const RegisterModal = () => {
 	const onSubmit: SubmitHandler<FieldValues> = async (data) => {
 		try {
 			setIsLoading(true);
-			await axios.post('/api/register', data);
-			registermodal.onClose();
+			const result = await signIn('credentials', {
+				...data,
+			});
+			if (result?.ok) {
+				toast.success('Successfully logged in');
+				router.refresh();
+				loginmodal.onClose();
+			}
+			if (result?.error) {
+				toast.error(result?.error);
+			}
 		} catch (error) {
 			console.log(error);
 			toast.error('Something went wrong...');
@@ -44,8 +56,8 @@ const RegisterModal = () => {
 	const bodyContent: React.ReactNode = (
 		<div className="flex flex-col gap-4">
 			<Heading
-				title="Welcome to Airbnb"
-				subTitle="Create an account"
+				title="Welcome back"
+				subTitle="Please login to continue"
 				center
 			/>
 			<Input
@@ -56,14 +68,7 @@ const RegisterModal = () => {
 				errors={errors}
 				required
 			/>
-			<Input
-				id="name"
-				label="Name"
-				disabled={isLoading}
-				register={register}
-				errors={errors}
-				required
-			/>
+
 			<Input
 				id="password"
 				label="Password"
@@ -109,10 +114,10 @@ const RegisterModal = () => {
 	return (
 		<Modal
 			disabled={isLoading}
-			isOpen={registermodal.isOpen}
+			isOpen={loginmodal.isOpen}
 			title="Register"
 			actionLabel="Continue"
-			onClose={registermodal.onClose}
+			onClose={loginmodal.onClose}
 			onSubmit={handleSubmit(onSubmit)}
 			body={bodyContent}
 			footer={footerContent}
@@ -120,4 +125,4 @@ const RegisterModal = () => {
 	);
 };
 
-export default RegisterModal;
+export default LoginModal;
