@@ -53,6 +53,11 @@ const LoginModal = () => {
 		}
 	};
 
+	const onCreateAccount = () => {
+		loginmodal.onClose();
+		registermodal.onOpen();
+	};
+
 	const bodyContent: React.ReactNode = (
 		<div className="flex flex-col gap-4">
 			<Heading
@@ -100,12 +105,12 @@ const LoginModal = () => {
 				icon={AiFillGithub}
 			/>
 			<div className="flex flex-row justify-center items-center gap-2">
-				<div>Already have an account ?</div>
+				<div>First time to airbnb ?</div>
 				<div
-					onClick={registermodal.onClose}
+					onClick={onCreateAccount}
 					className="text-neutral-500 cursor-pointer hover:underline"
 				>
-					Login
+					create an account
 				</div>
 			</div>
 		</div>
@@ -115,7 +120,7 @@ const LoginModal = () => {
 		<Modal
 			disabled={isLoading}
 			isOpen={loginmodal.isOpen}
-			title="Register"
+			title="Login"
 			actionLabel="Continue"
 			onClose={loginmodal.onClose}
 			onSubmit={handleSubmit(onSubmit)}
